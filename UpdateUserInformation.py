@@ -18,6 +18,8 @@ class typer():
 	基本上函数的作用都能在函数名上看出来。
 	'''
 	def __init__(self, Device, deviceIP):
+		self.d = Device
+		self.deviceIP = deviceIP
 		# 几百种大学专业名json文件路径
 		self.ConcentrationRoad = './Concentration.json'
 		# 公司图片路径
@@ -56,10 +58,9 @@ class typer():
 		self.srcYear = './addHighSchool/Year.png'
 		self.srcGraduate = './homePage/Graduate.png'
 		self.srcEditCurrentCityUI = './addCurrentCity/srcEditCurrentCity.png'
-		self.swipeTimes += 1
 		self.swipeTimes = 0
-		self.CoporationList[
-		{'name': 'ChinaResources', 'position': 'Sales'}
+		self.CoporationList = [
+		{'name': 'ChinaResources', 'position': 'Sales'},
 		{'name': 'ChinaResourcesVanguard', 'position': 'Sales'},
 		{'name': 'GreatFoodHall', 'position': 'CustomerServiceAssistant'}, 
 		{'name': 'JUSCO', 'position': 'AdviserSales'},
@@ -67,12 +68,12 @@ class typer():
 		{'name': 'SeibuDepartmentStores', 'position': 'BeautyConsultant'}, 
 		{'name': 'SincereDepartmentStores', 'position': 'Stoker'}, 
 		{'name': 'SogoHongKong', 'position': 'Sales'},
-		{'name': 'Wellcome', , 'position': 'ShopAssistant'},
-		{'name': 'WingOn', , 'position': 'SalesAssociate'},
+		{'name': 'Wellcome', 'position': 'ShopAssistant'},
+		{'name': 'WingOn', 'position': 'SalesAssociate'},
 		{'name': '裕華國貨', 'position': 'Sales'},
 		{'name': 'ParknShop', 'position': 'CustomerServiceAssistant'},
 		]
-		self.HighSchoolList[
+		self.HighSchoolList = [
 		{'name': 'CityUniversityOfHongKong'},
 		{'name': 'TheChineseUniversityOfHongKong'},
 		{'name': 'TheEducationUniversityOfHongKong'},
@@ -82,7 +83,7 @@ class typer():
 		{'name': 'UniversityOfSunderlandInHongKong'},
 		{'name': 'HongKongBaptisUniversity'},
 		]
-		self.CollegeList[
+		self.CollegeList = [
 		{'name': 'Harrow International School'},
 		{'name': 'Hong Kong Academy'},
 		{'name': 'HongKong Japanese School'},
@@ -211,7 +212,7 @@ class typer():
 			self.d.click(x, y)
 			time.sleep(3)
 			if not self.d(index='6').exists:
-				raies UnKnowError()
+				raise UnKnowError()
 			self.d(text='Single').click()
 			time.sleep(3)
 			x, y = self.findElement(self.srcSave)
@@ -326,9 +327,9 @@ class typer():
 
 
 	def clickWait(self):
-		if self.d(text='wait').exists():	
-		self.d(text='wait').click()
-		time.sleep(10)
+		if self.d(text='wait').exists():
+			self.d(text='wait').click()
+			time.sleep(10)
 
 
 	def findEditBlock(imgsrc):
@@ -373,9 +374,9 @@ class typer():
 		t = time.time()
 		while not self.d(textContains='Born on').exists:
 			ttt = time.time() - t
-			self.d.swipe(250, 800, 250, 300)
+			self.d.swipe(250, 830, 250, 300)
 			time.sleep(4)
-			if ttt > 100:
+			if ttt > 200:
 				raise UnKnowError()
 		self.d.dump('{}.text'.format(self.deviceIP))
 		time.sleep(1)
@@ -389,12 +390,12 @@ class typer():
 		'''此函数用来识别一张图片在另一张图片中的位置，返回一个字典.
 		使用方法稍作尝试便知，使用的算法我也有，不依赖于aircv模块。
 		'''
-	    imsrc = ac.imread(imgsrc)
-	    imobj = ac.imread(imgobj)
-	    match_result = ac.find_template(imsrc,imobj,confidence)
-	    if match_result is not None:
-	        match_result['shape']=(imsrc.shape[1],imsrc.shape[0])
-	    return match_result
+		imsrc = ac.imread(imgsrc)
+		imobj = ac.imread(imgobj)
+		match_result = ac.find_template(imsrc,imobj,confidence)
+		if match_result is not None:
+			match_result['shape']=(imsrc.shape[1],imsrc.shape[0])
+			return match_result
 
 
 	def Myscreenshot(self):
@@ -405,22 +406,23 @@ class typer():
 	def partOfChooseDate(self, src, data):
 		'''供selectDate函数调用'''
 		x, y = self.findElement(src)
-			self.raiseIfError()
-			self.d.click(x, y)
-			time.sleep(3)
-			self.swipeAndClick(x, y, data)
+		self.raiseIfError()
+		self.d.click(x, y)
+		time.sleep(3)
+		self.swipeAndClick(x, y, data)
 
 
 	def raiseIfError(self, x, y):
 		'''重复调用'''
-		if x = y == 0:
+		if x == y == 0:
 			raise UnKnowError()
 
 
 	def RestartAppAndWalkInEditUI(self):
-		os.popen('adb -s {} shell am start -n com.facebook.katana/.LoginActivity'.format(self.deviceIP))
-		time.sleep(5)
+		'''重启app并进入到选择五种编辑信息界面.  '''
 		os.popen('adb -s {} shell am force-stop com.facebook.katana'.format(self.deviceIP))
+		time.sleep(5)
+		os.popen('adb -s {} shell am start -n com.facebook.katana/.LoginActivity'.format(self.deviceIP))
 		time.sleep(30)
 		if self.d(description='More').exists:
 			self.d(description='More').click()
@@ -490,5 +492,4 @@ class typer():
 				raise UnKnowError()
 		self.d(text='{}'.format(data)).click()
 		time.sleep(3)
-
 
