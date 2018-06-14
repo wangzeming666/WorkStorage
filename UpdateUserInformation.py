@@ -1,5 +1,8 @@
 from uiautomator import JsonRPCError
+from uiautomator import Device
+from PIL import Image
 import aircv as ac
+import pytesseract
 import os
 import random
 import re
@@ -17,8 +20,8 @@ class typer():
 	需要传入两个参数， 第一个是设备uiautomator的Device实例对象， 第二个是设备的IP。
 	基本上函数的作用都能在函数名上看出来。
 	'''
-	def __init__(self, Device, deviceIP):
-		self.d = Device
+	def __init__(self, deviceIP):
+		self.d = Device(deviceIP)
 		self.deviceIP = deviceIP
 		# 几百种大学专业名json文件路径
 		self.ConcentrationRoad = './Concentration.json'
@@ -31,7 +34,7 @@ class typer():
 		self.srcAddHighSchool = './homePage/addHighSchool.png'
 		self.srcAddHomeTown = './homePage/addHomeTown.png'
 		self.srcAddRelationship = './homePage/addRelationship.png'
-		self.srcAddWork = './addWork/addWork.png'
+		self.srcAddWork = './homePage/addWork.png'
 		# 这个图片没用到，但还是放在这里备用了。
 		self.srcCannotFindASecureConnection = 'CannotFindASecureConnection.png '
 		# 图片的变量名基本都和要填写或点击的框里文字相同，不多解释了。
@@ -112,6 +115,7 @@ class typer():
 	def addCollege(self):
 		try:
 			x, y = self.findEditBlock(self.srcAddCollege)
+			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditCollegeUI)
 			x, y = self.findElement(self.srcEnterYourCollege)
 			self.raiseIfError(x, y)
@@ -149,6 +153,7 @@ class typer():
 	def addCurrentCity(self):
 		try:
 			x, y = self.findEditBlock(self.srcAddCurrentCity)
+			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditCurrentCityUI)
 			x, y = self.findElement(self.srcEnterYourCurrentCity)
 			self.raiseIfError(x, y)
@@ -178,6 +183,7 @@ class typer():
 	def addHighSchool(self):
 		try:
 			x, y = self.findEditBlock(self.srcAddHighSchool)
+			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditHighSchoolUI)
 			x, y = self.findElement(self.srcEnterYourHighSchool)
 			self.raiseIfError(x, y)
@@ -206,6 +212,7 @@ class typer():
 	def addRelationship(self, data):
 		try:
 			x, y = self.findEditBlock(self.srcAddRelationship)
+			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditRelationship)
 			x, y = self.findElement(self.srcWhatIsYourRelationshipStatus)
 			self.raiseIfError(x, y)
@@ -228,6 +235,7 @@ class typer():
 	def addWork(self):
 		try:
 			x, y = self.findEditBlock(self.srcAddWork)
+			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditWorkUI)
 			x, y = self.findElement(self.srcWhereDidYouWork)
 			self.raiseIfError(x, y)
@@ -327,17 +335,20 @@ class typer():
 
 
 	def clickWait(self):
-		if self.d(text='wait').exists():
+		if self.d(text='wait').exists:
 			self.d(text='wait').click()
 			time.sleep(10)
+		if self.d(text='Thanks').exists:
+			self.d(text='No Thanks').click()
+			time.sleep(5)
 
 
-	def findEditBlock(imgsrc):
+	def findEditBlock(selfl, imgsrc):
 		'''用来在第一个选择界面寻找编辑如工作、大学的入口，没找到的时候会向下滑动，超时会抛出异常，由上级承接。
 		'''
 		current = self.Myscreenshot()
 		time.sleep(1)
-		match_result = matchImg(current, imgsrc)
+		match_result = self.matchImg(current, imgsrc)
 		t = time.time()
 		while match_result == None or match_result['confidence'] < 0.8:
 			ttt = time.time() - t
@@ -345,7 +356,7 @@ class typer():
 			time.sleep(3)
 			current = self.Myscreenshot()
 			time.sleep(1)
-			match_result = matchImg(current, imgsrc)
+			match_result = self.matchImg(current, imgsrc)
 			if ttt > 100:
 				raise UnKnowError()
 			self.clickWait()
@@ -371,30 +382,42 @@ class typer():
 			上述建议只需将RestartApp函数中的调用此函数部分删去，在进行其他任务前以类实例调用一次即可。
 			需注意facebook界面须在个人中心处，并额外处理app停止运行的情况。
 		'''
-		t = time.time()
-		while not self.d(textContains='Born on').exists:
-			ttt = time.time() - t
-			self.d.swipe(250, 830, 250, 300)
-			time.sleep(4)
-			if ttt > 200:
-				raise UnKnowError()
-		self.d.dump('{}.text'.format(self.deviceIP))
-		time.sleep(1)
-		with open('{}.text'.format(self.deviceIP)) as f:
-			string = f.read()
-		month, day, year = re.search('text="Born on[\s]+([\w]+?)[\s]+([\d]+?),[\s]+([\d]+)', string).groups()
+		self.d.click(0, 400)
+		if self.d(textContains="Search in").exists:
+			self.d(textContains="Search in").click()
+		else:
+			raise UnknowError()
+		time.sleep(5)
+		if self.d(textContains='In').exists:
+			self.d(textContains='In').click()
+			time.sleep(3)
+			self.d(textContains='In').click()
+			time.sleep(3)
+		os.popen('adb -s {} shell input text "Born"'.format(self.deviceIP))
+		time.sleep(5)
+		self.d(description='born').click()
+		time.sleep(5)
+		current = self.Myscreenshot()
+		time.sleep(3)
+		string = pytesseract.image_to_string(Image.open(current))
+		month, day, year = re.search('Born on ([\w]+) ([\d]+),([\d]+)', string).groups()
 		self.Birthday = {'Year': int(year), 'Month': month, 'Day': int(day)}
+		self.d.press.back()
+		time.sleep(4)
+		self.d.press.back()
+		time.sleep(4)
+		self.d.press.back()
 
 
-	def matchImg(imgsrc,imgobj,confidence=0.5):
+	def matchImg(self, imgsrc, imgobj, confidence=0.5):
 		'''此函数用来识别一张图片在另一张图片中的位置，返回一个字典.
 		使用方法稍作尝试便知，使用的算法我也有，不依赖于aircv模块。
 		'''
 		imsrc = ac.imread(imgsrc)
 		imobj = ac.imread(imgobj)
-		match_result = ac.find_template(imsrc,imobj,confidence)
+		match_result = ac.find_template(imsrc, imobj, confidence)
 		if match_result is not None:
-			match_result['shape']=(imsrc.shape[1],imsrc.shape[0])
+			match_result['shape']=(imsrc.shape[1], imsrc.shape[0])
 			return match_result
 
 
@@ -424,8 +447,8 @@ class typer():
 		time.sleep(5)
 		os.popen('adb -s {} shell am start -n com.facebook.katana/.LoginActivity'.format(self.deviceIP))
 		time.sleep(30)
-		if self.d(description='More').exists:
-			self.d(description='More').click()
+		if self.d(descriptionContains='More').exists:
+			self.d(descriptionContains='More').click()
 			time.sleep(3)
 		else:
 			self.RestartAppAndWalkInEditUI()
@@ -433,6 +456,7 @@ class typer():
 		if self.d(descriptionContains='View your profile').exists:
 			self.d(descriptionContains='View your profile').click()
 			time.sleep(5)
+			self.clickWait()
 		else:
 			self.RestartAppAndWalkInEditUI()
 			return
@@ -442,9 +466,10 @@ class typer():
 			self.RestartAppAndWalkInEditUI()
 			return
 		t = time.time()
+		ttt = 0
 		while not self.d(text='ADD DETAILS ABOUT YOU').exists and not self.d(text='EDIT DETAILS').exists and ttt < 100:
 			ttt = time.time() - t
-			self.d.swpie(250, 200, 250, 600)
+			self.d.swipe(250, 600, 250, 200)
 			time.sleep(3)
 			self.clickWait()
 			if ttt > 100:
@@ -493,3 +518,7 @@ class typer():
 		self.d(text='{}'.format(data)).click()
 		time.sleep(3)
 
+if __name__ == '__main__':
+	t = typer('0123456789ABCDEF')
+	t.getBirthday()
+	print(t.Birthday)
