@@ -509,6 +509,9 @@ class typer():
 
 	def RestartAppAndWalkInEditUI(self):
 		'''重启app并进入到选择五种编辑信息界面.  '''
+		self.RestartAppTimes += 1
+		if self.RestartAppTimes > 100:
+			raise CheckOutError()
 		os.popen('adb -s {} shell am force-stop com.facebook.katana'.format(self.deviceIP))
 		time.sleep(5)
 		os.popen('adb -s {} shell am start -n com.facebook.katana/.LoginActivity'.format(self.deviceIP))
