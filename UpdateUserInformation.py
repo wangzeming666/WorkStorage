@@ -16,31 +16,41 @@ class UnKnowError(Exception):
 	pass
 
 
+class CheckOutError(Exception):
+	'''整个类只抛出一种没有捕获的异常，是发生在程序重启次数超过100次时的，如果觉得100次太多，可以在下面的Restartapp函数中修改.'''
+	pass
+
+
 class typer():
 	'''
 	填写facebook个人详细信息功能。
-	需要传入设备的IP。
-	基本上函数的作用都能在函数名上看出来。
+	需要传入设备的IP, 或是deviceID.
+	函数的作用都能在函数名上看出一二.
+	开始的时候我写了大量的异常处理代码，想发送到本地服务器上供参考，因为无法发送数据，后来都删掉了.
+	可以在个人中心的内面检测是否填写了内容，然后根据填写情况调用相应的类函数. 我截了一张图放在服务器上，如果找不到好的获取办法可以用我下面文字识别的方法.
+	在填写学校时，必须先调用获取生日的类函数，会声明一个成员变量并赋值，供后面计算上学日期和毕业时间的函数使用，不然会报错(这个异常我没有捕获).
 	'''
 	def __init__(self, deviceIP):
 		self.d = Device(deviceIP)
+		# 因为控制多台设备，所以用设备名命名截图等，不会发生冲突.
 		self.deviceIP = deviceIP
+		# 重启app的计数. 超过100次下面的函数中会抛出异常
 		self.RestartAppTimes = 0
 		# 几百种大学专业名json文件路径
 		self.ConcentrationRoad = './Concentration.json'
 		# 公司图片路径
 		self.addWorkSrcRoad = './addWork/Position/'
 		self.srcAddCollege = './homePage/addCollege.png'
-		# srcAdd开头的除了下面这个都是第一个选择界面的五个填写部分的图片路径，如添加大学，公司。下面这个是大学的专业填写框用来识别的demo。
+		# srcAdd开头的除了下面这个都是第一个选择界面的五个填写部分的图片路径，如添加大学，公司。下面这个是用来识别大学专业填写框的demo.  
 		self.srcAddConcetration = './addCollege/AddConcentration.png'
 		self.srcAddCurrentCity = './homePage/addCurrentCity.png'
 		self.srcAddHighSchool = './homePage/addHighSchool.png'
 		self.srcAddHomeTown = './homePage/addHomeTown.png'
 		self.srcAddRelationship = './homePage/addRelationship.png'
 		self.srcAddWork = './homePage/addWork.png'
-		# 这个图片没用到，但还是放在这里备用了。
+		# 这个图片没用到，本是用来捕获网络异常的，因为不能传递数据取消功能，但还是放在这里备用. 
 		self.srcCannotFindASecureConnection = 'CannotFindASecureConnection.png '
-		# 图片的变量名基本都和要填写或点击的框里文字相同，不多解释了。
+		# 下面图片的变量名都和要填写或点击部分的占位文字相同，不多解释了.  
 		self.srcCityTown = './addWork/CityTown.png'
 		self.srcDay = './addHighSchool/Day.png'
 		self.srcDescription = './addWork/Description.png'
@@ -65,6 +75,7 @@ class typer():
 		self.srcGraduated = './homePage/Graduated.png'
 		self.srcEditCurrentCityUI = './addCurrentCity/EditCurrentCity.png'
 		self.swipeTimes = 0
+		# 公司列表，注释掉的一行是因为测试时这家公司不再能在facebook上找到.  
 		self.CoporationList = [
 		{'name': 'ChinaResources', 'position': 'Sales'},
 		{'name': 'ChinaResourcesVanguard', 'position': 'Sales'},
@@ -79,6 +90,7 @@ class typer():
 		{'name': '裕華國貨', 'position': 'Sales'},
 		{'name': 'ParknShop', 'position': 'CustomerServiceAssistant'},
 		]
+		# 大学列表
 		self.CollegeList = [
 		{'name': 'CityUniversityOfHongKong'},
 		{'name': 'TheChineseUniversityOfHongKong'},
@@ -89,6 +101,7 @@ class typer():
 		{'name': 'UniversityOfSunderlandInHongKong'},
 		{'name': 'HongKongBaptisUniversity'},
 		]
+		# 高中列表
 		self.HighSchoolList = [
 		{'name': 'Harrow International School'},
 		{'name': 'Hong Kong Academy'},
@@ -106,6 +119,7 @@ class typer():
 		{'name': 'ESF Discovery College'},
 		{'name': 'German Swiss International School'},
 		]
+		# 随机生成的进入公司工作时间.  
 		self.workDate = {
 			'Day': random.choice([str(i) for i in range(1,31)]),
 			'Month': random.choice([
@@ -116,6 +130,9 @@ class typer():
 
 
 	def addCollege(self):
+		'''添加大学信息. 从选择编辑页面开始，编辑页面一共五个，分别是编辑工作信息，中学信息，大学信息，居住城市，婚姻关系，故居。
+			正常在填完一个内容的时候会回到选择编辑页面.  中途填写失败会抛出异常，异常被上一级捕获，调用重启app函数并重新执行当前填写功能.  
+		'''
 		try:
 			self.findEditBlock(self.srcAddCollege)
 			time.sleep(10)
@@ -158,6 +175,9 @@ class typer():
 		
 
 	def addCurrentCity(self):
+		'''添加现居和故居功能，这两个编辑内容可以在同一个页面填写.  
+			填写内容均是香港，写死的，如果需要改可以在下面改.
+		'''
 		try:
 			self.findEditBlock(self.srcAddCurrentCity)
 			time.sleep(10)
@@ -188,6 +208,7 @@ class typer():
 
 
 	def addHighSchool(self):
+			'''添加中学信息'''
 		try:
 			self.findEditBlock(self.srcAddHighSchool)
 			time.sleep(10)
@@ -222,6 +243,7 @@ class typer():
 
 
 	def addRelationship(self):
+		'''添加婚姻关系'''
 		try:
 			self.findEditBlock(self.srcAddRelationship)
 			time.sleep(10)
@@ -245,6 +267,9 @@ class typer():
 
 
 	def addWork(self):
+		'''添加工作信息.  测试过程中发现裕华国货公司页面下的职位发生改变，原来的策略不再适用，注释掉了.
+			后期填写过程中也可能会发生改变，到时候需要有针对性的修改，或者添加一些新的公司信息和截取对应的图片.
+		'''
 		try:
 			self.findEditBlock(self.srcAddWork)
 			time.sleep(10)
@@ -297,6 +322,7 @@ class typer():
 
 
 	def calculateDateAtSchool(self, level):
+		'''根据不同情况计算开始读书和毕业的时间.'''
 		DATA = {}
 		dateOne = {}
 		dateOne['Month'] = 'September'
@@ -318,6 +344,7 @@ class typer():
 
 
 	def calculateDatePosition(self):
+		'''根据截图上From的位置计算出选择月份的位置'''
 		x, y = self.findElement(self.srcFrom)
 		self.raiseIfError(x, y)
 		month = (x + 138, y)
@@ -326,14 +353,16 @@ class typer():
 
 
 	def checkCurrentFullOfUI(self, imgobj):
+		'''比对整张图片是否相同，用来检测是否成功进入编辑页面'''
 		current = self.d.screenshot('{}.png'.format(self.deviceIP))
-		time.sleep(1)
-		result = self.matchImg(current, imgobj, 0.8)
+		time.sleep(2)
+		result = self.matchImg(current, imgobj, 0.7)
 		x, y = result['result'] if result else (0, 0)
 		self.raiseIfError(x, y)
 
 
 	def clickAndInput(self, x, y, data):
+		'''这里必须降低输入速度, 加入了睡眠随机数'''
 		if x == y == 0:
 			pass
 		else:
@@ -363,6 +392,7 @@ class typer():
 
 
 	def clickWait(self):
+		'''检测是否出现app停止运行的情况，点击wait并等待一小会. '''
 		if self.d(text='wait').exists:
 			self.d(text='wait').click()
 			time.sleep(10)
@@ -411,7 +441,8 @@ class typer():
 
 	def getBirthday(self):
 		'''从Facebook个人中心获取到用户的生日信息。
-			这里我想过不在RestartApp函数里面调用，但是不好处理，建议以类实例调用，并保存起来，避免反复获取。
+			使用了图像识别文字库tesseract-ocr.
+			这里我想过不在RestartApp函数里面调用，但是不好处理，建议修改代码，在外部处理，以类实例调用，并保存起来，避免反复获取。
 			上述建议只需将RestartApp函数中的调用此函数部分删去，在进行其他任务前以类实例调用一次即可。
 			需注意facebook界面须在个人中心处，并额外处理app停止运行的情况。
 		'''
@@ -455,6 +486,7 @@ class typer():
 
 
 	def Myscreenshot(self):
+		'''截图并以设备id或ip为图片名保存'''
 		current = self.d.screenshot('{}.png'.format(self.deviceIP))
 		return current
 	
@@ -467,7 +499,7 @@ class typer():
 
 
 	def raiseIfError(self, x, y):
-		'''重复调用'''
+		'''重复调用, 用来抛出异常到上级'''
 		if x == y == 0:
 			raise UnKnowError()
 
@@ -518,6 +550,8 @@ class typer():
 
 
 	def selectDate(self, signal=False):
+		'''根据不同参数，处理不同的日期选择, 由于月份的文字长度不同，给定的数值又不能确定，为避免复杂计算，使用了固定坐标添加. 
+			如果树莓派或其他驱动设备的处理性能高，也可以写成依次识别十二个月份图片的方法.'''
 		# x, y = self.findElement(self.srcFrom)
 		# self.raiseIfError(x, y)
 		(year_x, year_y), (month_x, month_y) = self.calculateDatePosition()
@@ -553,6 +587,7 @@ class typer():
 
 
 	def swipeAndClick(self, x, y, data):
+		'''功能如函数名, 供选择日期使用.'''
 		self.d.click(x, y)
 		time.sleep(3)
 		if not self.d(index='6').exists:
@@ -576,6 +611,7 @@ class typer():
 		time.sleep(3)
 
 
+# 调用方法的一个demo.
 if __name__ == '__main__':
 	t = typer('0123456789ABCDEF')
 	t.RestartAppAndWalkInEditUI()
