@@ -464,7 +464,10 @@ class typer():
 		current = self.Myscreenshot()
 		time.sleep(3)
 		string = pytesseract.image_to_string(Image.open(current))
-		month, day, year = re.search('Born on ([\w]+) ([\d]+),([\d]+)', string).groups()
+		try:
+			month, day, year = re.search('Born on ([\w]+) ([\d]+),([\d]+)', string).groups()
+		except AttributeError:
+			raise UnknowError()
 		self.Birthday = {'Year': int(year), 'Month': month, 'Day': int(day)}
 		self.d.press.back()
 		time.sleep(4)
