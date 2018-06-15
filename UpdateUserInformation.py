@@ -1,8 +1,10 @@
+# test015.py
 from uiautomator import JsonRPCError
 from uiautomator import Device
 from PIL import Image
 import aircv as ac
 import pytesseract
+import json
 import os
 import random
 import re
@@ -17,19 +19,20 @@ class UnKnowError(Exception):
 class typer():
 	'''
 	填写facebook个人详细信息功能。
-	需要传入两个参数， 第一个是设备uiautomator的Device实例对象， 第二个是设备的IP。
+	需要传入设备的IP。
 	基本上函数的作用都能在函数名上看出来。
 	'''
 	def __init__(self, deviceIP):
 		self.d = Device(deviceIP)
 		self.deviceIP = deviceIP
+		self.RestartAppTimes = 0
 		# 几百种大学专业名json文件路径
 		self.ConcentrationRoad = './Concentration.json'
 		# 公司图片路径
 		self.addWorkSrcRoad = './addWork/Position/'
 		self.srcAddCollege = './homePage/addCollege.png'
 		# srcAdd开头的除了下面这个都是第一个选择界面的五个填写部分的图片路径，如添加大学，公司。下面这个是大学的专业填写框用来识别的demo。
-		self.srcAddConcetration = './addCollege/AddConcetration.png'
+		self.srcAddConcetration = './addCollege/AddConcentration.png'
 		self.srcAddCurrentCity = './homePage/addCurrentCity.png'
 		self.srcAddHighSchool = './homePage/addHighSchool.png'
 		self.srcAddHomeTown = './homePage/addHomeTown.png'
@@ -54,29 +57,29 @@ class typer():
 		self.srcHongKong = './addWork/HongKong.png'
 		self.srcItsNotAPhysicalPlace = './add/addWork/ItsNotAPhysicalPlace.png'
 		self.srcMonth = './addHighSchool/Month.png'
-		self.srcPosition = './addWork/Posiotion.png'
+		self.srcPosition = './addWork/Position.png'
 		self.srcSave = './homePage/Save.png'
-		self.srcWhatIsYourRelationshipStatus = './addRelationship/WhatIsYoutRelationshipStatus.png'
-		self.srcWhereDidYouWork = './addWork/whereDidYouWork.png'
+		self.srcWhatIsYourRelationshipStatus = './addRelationship/WhatIsYourRelationshipStatus.png'
+		self.srcWhereDidYouWork = './addWork/WhereDidYouWork.png'
 		self.srcYear = './addHighSchool/Year.png'
-		self.srcGraduate = './homePage/Graduate.png'
-		self.srcEditCurrentCityUI = './addCurrentCity/srcEditCurrentCity.png'
+		self.srcGraduated = './homePage/Graduated.png'
+		self.srcEditCurrentCityUI = './addCurrentCity/EditCurrentCity.png'
 		self.swipeTimes = 0
 		self.CoporationList = [
 		{'name': 'ChinaResources', 'position': 'Sales'},
 		{'name': 'ChinaResourcesVanguard', 'position': 'Sales'},
-		{'name': 'GreatFoodHall', 'position': 'CustomerServiceAssistant'}, 
+		# {'name': 'GreatFoodHall', 'position': 'CustomerServiceAssistant'}, 
 		{'name': 'JUSCO', 'position': 'AdviserSales'},
 		{'name': 'LaneCrawford', 'position': 'LaneCrawford'}, 
 		{'name': 'SeibuDepartmentStores', 'position': 'BeautyConsultant'}, 
-		{'name': 'SincereDepartmentStores', 'position': 'Stoker'}, 
+		{'name': 'SincereDepartmentStore', 'position': 'Stoker'}, 
 		{'name': 'SogoHongKong', 'position': 'Sales'},
 		{'name': 'Wellcome', 'position': 'ShopAssistant'},
 		{'name': 'WingOn', 'position': 'SalesAssociate'},
 		{'name': '裕華國貨', 'position': 'Sales'},
 		{'name': 'ParknShop', 'position': 'CustomerServiceAssistant'},
 		]
-		self.HighSchoolList = [
+		self.CollegeList = [
 		{'name': 'CityUniversityOfHongKong'},
 		{'name': 'TheChineseUniversityOfHongKong'},
 		{'name': 'TheEducationUniversityOfHongKong'},
@@ -86,7 +89,7 @@ class typer():
 		{'name': 'UniversityOfSunderlandInHongKong'},
 		{'name': 'HongKongBaptisUniversity'},
 		]
-		self.CollegeList = [
+		self.HighSchoolList = [
 		{'name': 'Harrow International School'},
 		{'name': 'Hong Kong Academy'},
 		{'name': 'HongKong Japanese School'},
@@ -106,7 +109,7 @@ class typer():
 		self.workDate = {
 			'Day': random.choice([str(i) for i in range(1,31)]),
 			'Month': random.choice([
-				'January', 'February', 'March', 'April', 
+				'January', 'February', 'March', 'April', 'May',
 				]),
 			'Year':2018, 
 			}
@@ -114,7 +117,7 @@ class typer():
 
 	def addCollege(self):
 		try:
-			x, y = self.findEditBlock(self.srcAddCollege)
+			self.findEditBlock(self.srcAddCollege)
 			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditCollegeUI)
 			x, y = self.findElement(self.srcEnterYourCollege)
@@ -122,26 +125,30 @@ class typer():
 			data = random.choice(self.CollegeList)
 			self.clickAndInput(x, y, data['name'])
 			time.sleep(5)
-			x, y = self.findElement('./addCollege/'+data['name']+'/'+data['name']+'png')
-			self.raiseIfError()
+			x, y = self.findElement('./addCollege/'+data['name']+'/'+data['name']+'.png')
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
+			if self.d(index='6').exists:
+				self.d.press.back()
+				time.sleep(3)
+			self.atSchoolDate = self.calculateDateAtSchool('College')
 			self.selectDate(True)
-			x, y = self.findElement(self.Graduate)
-			self.raiseIfError()
+			x, y = self.findElement(self.srcGraduated)
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
-			x, y = self.findElement(self.AddConcetration)
-			self.raiseIfError()
+			x, y = self.findElement(self.srcAddConcetration)
+			self.raiseIfError(x, y)
 			with open(self.ConcentrationRoad, 'r') as f:
 				string = f.read()
 			concentrationDict = json.loads(string)
-			concentration = random.choice(concentrationDict[Concentration])
+			concentration = random.choice(concentrationDict['Concentration'])
 			self.d.swipe(250, 800, 250, 200)
 			time.sleep(3)
 			self.clickAndInput(x, y, concentration)
 			x, y = self.findElement(self.srcSave)
-			self.raiseIfError()
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
 		except UnKnowError:
@@ -152,26 +159,26 @@ class typer():
 
 	def addCurrentCity(self):
 		try:
-			x, y = self.findEditBlock(self.srcAddCurrentCity)
+			self.findEditBlock(self.srcAddCurrentCity)
 			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditCurrentCityUI)
 			x, y = self.findElement(self.srcEnterYourCurrentCity)
 			self.raiseIfError(x, y)
 			self.clickAndInput(x, y, 'HongKong')
-			time.sleep(5)
-			x, y = self.findElement(srcHongKong)
-			self.raiseIfError()
+			time.sleep(10)
+			x, y = self.findElement(self.srcHongKong)
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
-			x, y = self.findElement(self.srcAddHomeTown)
-			self.raiseIfError()
+			x, y = self.findElement(self.srcEnterYourHomeTown)
+			self.raiseIfError(x, y)
 			self.clickAndInput(x, y, 'HongKong')
 			x, y = self.findElement(self.srcHongKong)
-			self.raiseIfError()
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
 			x, y = self.findElement(self.srcSave)
-			self.raiseIfError()
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
 		except UnKnowError:
@@ -182,7 +189,7 @@ class typer():
 
 	def addHighSchool(self):
 		try:
-			x, y = self.findEditBlock(self.srcAddHighSchool)
+			self.findEditBlock(self.srcAddHighSchool)
 			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditHighSchoolUI)
 			x, y = self.findElement(self.srcEnterYourHighSchool)
@@ -190,28 +197,33 @@ class typer():
 			data = random.choice(self.HighSchoolList)
 			self.clickAndInput(x, y, data['name'])
 			time.sleep(5)
-			x, y = self.findElement('./addHighSchool/'+data['name']+'/'+data['name']+'png')
-			self.raiseIfError()
+			x, y = self.findElement('./addHighSchool/'+data['name']+'/'+data['name']+'.png')
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
+			if self.d(index='6').exists:
+				self.d.press.back()
+				time.sleep(3)
+			self.atSchoolDate = self.calculateDateAtSchool('HighSchool')
+			print(self.atSchoolDate	)
 			self.selectDate(True)
-			x, y = self.findElement(self.Graduate)
-			self.raiseIfError()
+			x, y = self.findElement(self.srcGraduated)
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
 			x, y = self.findElement(self.srcSave)
-			self.raiseIfError()
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
 		except UnKnowError:
 			self.RestartAppAndWalkInEditUI()
-			self.HighSchool()
+			self.addHighSchool()
 			return
 
 
-	def addRelationship(self, data):
+	def addRelationship(self):
 		try:
-			x, y = self.findEditBlock(self.srcAddRelationship)
+			self.findEditBlock(self.srcAddRelationship)
 			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditRelationship)
 			x, y = self.findElement(self.srcWhatIsYourRelationshipStatus)
@@ -223,18 +235,18 @@ class typer():
 			self.d(text='Single').click()
 			time.sleep(3)
 			x, y = self.findElement(self.srcSave)
-			self.raiseIfError()
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
 		except UnKnowError:
 			self.RestartAppAndWalkInEditUI()
-			self.srcAddRelationship()
+			self.addRelationship()
 			return
 
 
 	def addWork(self):
 		try:
-			x, y = self.findEditBlock(self.srcAddWork)
+			self.findEditBlock(self.srcAddWork)
 			time.sleep(10)
 			self.checkCurrentFullOfUI(self.srcEditWorkUI)
 			x, y = self.findElement(self.srcWhereDidYouWork)
@@ -242,32 +254,40 @@ class typer():
 			data = random.choice(self.CoporationList)
 			self.clickAndInput(x, y, data['name'])
 			time.sleep(5)
-			x, y = self.findElement('./addWork/Position/'+data['name']+'/'+data['name']+'png')
-			self.raiseIfError()
+			x, y = self.findElement('./addWork/Position/'+data['name']+'/'+data['name']+'.png')
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
 			x, y = self.findElement(self.srcPosition)
-			self.clickAndInput(x, y, data['position'])
-			time.sleep(5)
+			if x == y == 0:
+				pass 
+			else:
+				self.d.click(x, y)
+				time.sleep(5)
 			if data['name'] == 'ChinaResourcesVanguard':
 				self.d.swipe(250, 600, 250, 200)
 				time.sleep(3)
-			x, y = self.findElement('./addWork/Position/'+data['name']+'/'+data['positiublime 怎么输入中文on']+'png')
-			self.raiseIfError()
+			# if data['name'] == '裕華國貨':
+			# 	self.clickAndInput(x, y, data['position'])
+			# 	self.d.click(250, 800)
+			# 	time.sleep(3)
+			x, y = self.findElement('./addWork/Position/'+data['name']+'/'+data['position']+'.png')
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
-			if data['name'] == '裕華國貨':
-				self.d.click(250, 800)
+			if self.d(index='6').exists:
+				self.d.press.back()
 				time.sleep(3)
-			x, y = self.findElement(self.CityTown)
-			self.raiseIfError()
+			x, y = self.findElement(self.srcCityTown)
 			self.clickAndInput(x, y, 'HongKong')
 			time.sleep(5)
 			x, y = self.findElement(self.srcHongKong)
-			self.raiseIfError()
+			self.raiseIfError(x, y)
+			self.d.click(x, y)
+			time.sleep(3)
 			self.selectDate()
 			x, y = self.findElement(self.srcSave)
-			self.raiseIfError()
+			self.raiseIfError(x, y)
 			self.d.click(x, y)
 			time.sleep(3)
 		except UnKnowError:
@@ -278,57 +298,65 @@ class typer():
 
 	def calculateDateAtSchool(self, level):
 		DATA = {}
-		date = {}
-		date['Month'] = 'September'
+		dateOne = {}
+		dateOne['Month'] = 'September'
+		dateOne['Day'] = 1
 		if level == 'College':
-			date['Year'] = self.Birthday['Year'] + 18
+			dateOne['Year'] = self.Birthday['Year'] + 18
 		else:
-			date['Year'] = self.Birthday['Year'] + 15		
-		DATA['Start'] = date
+			dateOne['Year'] = self.Birthday['Year'] + 15		
+		DATA['Start'] = dateOne
+		dateTwo = {}
 		if level == 'College':
-			date['Year'] = date['year'] + 4
+			dateTwo['Year'] = dateOne['Year'] + 4
 		else:
-			date['Year'] = date['year'] + 3
-		date['Month'] = 'July'		
-		day['Day'] = 1
-		DATA['End'] = date	
+			dateTwo['Year'] = dateOne['Year'] + 3
+		dateTwo['Month'] = 'July'	
+		dateTwo['Day'] = 1
+		DATA['End'] = dateTwo	
 		return DATA
 
 
-	def calculateDatePosition(x, y):
-		current = self.Myscreenshot()
-		x, y = self.match_result(current, self.From)
-		self.raiseIfError()
-		day = (x + 203, y)
+	def calculateDatePosition(self):
+		x, y = self.findElement(self.srcFrom)
+		self.raiseIfError(x, y)
 		month = (x + 138, y)
 		year = (x + 64, y)
-		return (year, month, day)
+		return (year, month)
 
 
-	def checkCurrentFullOfUI(imgobj):
-		current = self.d.screenshot('{}.png'.format(self.deviceIp))
+	def checkCurrentFullOfUI(self, imgobj):
+		current = self.d.screenshot('{}.png'.format(self.deviceIP))
 		time.sleep(1)
-		x, y = self.matchImg(current, imgobj, 0.8)
-		self.raiseIfError()
+		result = self.matchImg(current, imgobj, 0.8)
+		x, y = result['result'] if result else (0, 0)
+		self.raiseIfError(x, y)
 
 
-	def clickAndInput(x, y, data):
+	def clickAndInput(self, x, y, data):
 		if x == y == 0:
 			pass
 		else:
 			self.d.click(x, y)
 			time.sleep(3)
-		dataList = data.splite(' ')
+			print('Clicking finished.')
+		dataList = data.split(' ')
 		length = len(dataList)
+		print('the length of data: ' + str(length))
 		if length > 1:
 			times = 0
 			for i in dataList:
 				times += 1
-				os.popen("adb -s {} shell am broadcast -a ADB_INPUT_TEXT --es msg '{}'".format(self.deviceIP, i))
-				time.sleep(2)
+				print('starting input...')
+				for j in i:				
+					os.popen("adb -s {} shell am broadcast -a ADB_INPUT_TEXT --es msg '{}'".format(self.deviceIP, j))
+					time.sleep((int(random.random()*10)/10+1))
 				if times < length:
-					os.popen('adb -s {} shell input keyevent 62')
-					time.sleep(2)
+					print('input space.')
+					os.popen('adb -s {} shell input keyevent 62'.format(self.deviceIP))
+					print('done!')
+					time.sleep(3)
+				print('done!')
 		else:
 			os.popen("adb -s {} shell am broadcast -a ADB_INPUT_TEXT --es msg '{}'".format(self.deviceIP, data))
 			time.sleep(2)
@@ -343,7 +371,7 @@ class typer():
 			time.sleep(5)
 
 
-	def findEditBlock(selfl, imgsrc):
+	def findEditBlock(self, imgsrc):
 		'''用来在第一个选择界面寻找编辑如工作、大学的入口，没找到的时候会向下滑动，超时会抛出异常，由上级承接。
 		'''
 		current = self.Myscreenshot()
@@ -352,7 +380,10 @@ class typer():
 		t = time.time()
 		while match_result == None or match_result['confidence'] < 0.8:
 			ttt = time.time() - t
+			print('It waste time: ' + str(int(ttt)))
+			print('Swiping the screen...')
 			self.d.swipe(250, 600, 250, 400)
+			print('has finished swipeing...')
 			time.sleep(3)
 			current = self.Myscreenshot()
 			time.sleep(1)
@@ -360,15 +391,17 @@ class typer():
 			if ttt > 100:
 				raise UnKnowError()
 			self.clickWait()
+			print('Looking for the edit block...')
+		print('Has done the searching job.')
 		x, y = match_result['result']
 		self.d.click(x, y)
 		time.sleep(5)
 
 
-	def findElement(imgsrc):
+	def findElement(self, imgsrc):
 		'''在当前界面内寻找指定的图片位置，如果没找到，返回(0,0)。
 		'''
-		current = self.d.screenshot()
+		current = self.Myscreenshot()
 		result = self.matchImg(current, imgsrc)
 		if result == None:
 			return (0, 0)
@@ -417,7 +450,7 @@ class typer():
 		imobj = ac.imread(imgobj)
 		match_result = ac.find_template(imsrc, imobj, confidence)
 		if match_result is not None:
-			match_result['shape']=(imsrc.shape[1], imsrc.shape[0])
+			match_result['shape']=(imsrc.shape[1],imsrc.shape[0])
 			return match_result
 
 
@@ -429,9 +462,7 @@ class typer():
 	def partOfChooseDate(self, src, data):
 		'''供selectDate函数调用'''
 		x, y = self.findElement(src)
-		self.raiseIfError()
-		self.d.click(x, y)
-		time.sleep(3)
+		self.raiseIfError(x, y)
 		self.swipeAndClick(x, y, data)
 
 
@@ -467,7 +498,7 @@ class typer():
 			return
 		t = time.time()
 		ttt = 0
-		while not self.d(text='ADD DETAILS ABOUT YOU').exists and not self.d(text='EDIT DETAILS').exists and ttt < 100:
+		while not self.d(description='ADD DETAILS ABOUT YOU').exists and not self.d(text='EDIT DETAILS').exists and ttt < 100:
 			ttt = time.time() - t
 			self.d.swipe(250, 600, 250, 200)
 			time.sleep(3)
@@ -475,8 +506,8 @@ class typer():
 			if ttt > 100:
 				self.RestartAppAndWalkInEditUI()
 				return
-		if self.d(text='ADD DETAILS ABOUT YOU').exists:
-			self.d(text='ADD DETAILS ABOUT YOU').click()
+		if self.d(description='ADD DETAILS ABOUT YOU').exists:
+			self.d(description='ADD DETAILS ABOUT YOU').click()
 			time.sleep(3)
 		elif self.d(text='EDIT DETAILS').exists:
 			self.d(text='EDIT DETAILS').click()
@@ -487,15 +518,34 @@ class typer():
 
 
 	def selectDate(self, signal=False):
-		year_x, year_y, month_x, month_y, day_x, day_y = self.calculateDatePosition()
+		# x, y = self.findElement(self.srcFrom)
+		# self.raiseIfError(x, y)
+		(year_x, year_y), (month_x, month_y) = self.calculateDatePosition()
+		print(month_x, month_y)
 		if signal:
 			self.swipeAndClick(year_x, year_y, self.atSchoolDate['Start']['Year'])
 		if signal:
-			Data = self.atSchoolDate['Start']
+			Date = self.atSchoolDate['Start']
 		else:
 			Date = self.workDate
-		self.swipeAndClick(month_x, month_y, Data['Month'])
-		self.swipeAndClick(day_x, day_y, Data['Day'])
+		print(Date)
+		self.swipeAndClick(month_x, month_y, Date['Month'])
+		if Date['Month'] == 'January':
+			day_x = 290
+		elif Date['Month'] == 'February':
+			day_x = 299
+		elif Date['Month'] == 'March':
+			day_x = 275
+		elif Date['Month'] == 'April':
+			day_x = 260
+		elif Date['Month'] == 'May':
+			day_x = 252
+		elif Date['Month'] == 'June' or Date['Month'] == 'July':
+			day_x = 259
+		elif Date['Month'] == 'September':
+			day_x = 315
+		day_y = month_y
+		self.swipeAndClick(day_x, day_y, Date['Day'])
 		if signal:
 			self.partOfChooseDate(self.srcYear, self.atSchoolDate['End']['Year'])
 			self.partOfChooseDate(self.srcMonth, self.atSchoolDate['End']['Month'])
@@ -505,20 +555,32 @@ class typer():
 	def swipeAndClick(self, x, y, data):
 		self.d.click(x, y)
 		time.sleep(3)
-		if not d(index='6').exists:
+		if not self.d(index='6').exists:
+			print('index=6 not exists.')
 			raise UnKnowError()
+		for i in range(2):
+			self.d.swipe(250, 200, 250, 800)
+			time.sleep(3)
+			print('swiping to the top.')
 		t = time.time()
 		while not self.d(text='{}'.format(data)).exists:
 			ttt = time.time() - t
 			self.d.swipe(250, 800, 250, 200)
+			print('swiping down and looking for the selection.')
 			time.sleep(3)
 			self.clickWait()
 			if ttt > 60:
 				raise UnKnowError()
+		print('has fond out.')
 		self.d(text='{}'.format(data)).click()
 		time.sleep(3)
 
+
 if __name__ == '__main__':
 	t = typer('0123456789ABCDEF')
-	t.getBirthday()
+	t.RestartAppAndWalkInEditUI()
 	print(t.Birthday)
+	t.addWork()
+	time.sleep(20)
+	t.addHighSchool()
+	
