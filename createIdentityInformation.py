@@ -748,11 +748,12 @@ class createChineseName():
 		ID = ''
 		if int(BornYear) > 2004:
 			head = 'S'
-		elif int(BornYear) > 1989:
+		elif int(BornYear) > 1988:
 			head = 'Y'
 		elif int(BornYear) == 1988:
 			head = 'Z'
 		else:
+			print(BornYear)
 			raise Exception('Please make sure BornYear more than 1988.')
 		ID += head
 		Value = (self.characterList.index(head) + 1) * 8
