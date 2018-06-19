@@ -719,31 +719,29 @@ class createChineseName():
 
 
 	def makeSimpleChineseName(self):
-		persondict = {}
+		data = {}
 		name = random.choice(self.lastNameWords)+random.choice(self.firstNameWords)+random.choice(self.firstNameWords)
 		for i in range(1,3):
 			if name[i] in self.femaleUsed:
-				persondict['sex'] = 'female'
+				data['sex'] = 'female'
 			else:
-				persondict['sex'] = 'male'
-		persondict['age'] = random.choice([i for i in range(18, 30)])
-		persondict['name'] = name
-		nameList.append(persondict)
-		return nameList
+				data['sex'] = 'male'
+		data['age'] = random.choice([i for i in range(18, 30)])
+		data['name'] = name
+		return data
 
 
 	def makeTraditionalChineseName(self):
-		persondict = {}
+		data = {}
 		name = random.choice(self.TraditionalLastNameWords)+random.choice(self.TraditionalFirstNameWords)+random.choice(self.TraditionalFirstNameWords)
 		for i in range(1,3):
 			if name[i] in self.TraditionalFemaleUsed:
-				persondict['sex'] = 'female'
+				data['sex'] = 'female'
 			else:
-				persondict['sex'] = 'male'
-		persondict['age'] = random.choice([i for i in range(18, 30)])
-		persondict['name'] = name
-		nameList.append(persondict)
-		return nameList
+				data['sex'] = 'male'
+		data['age'] = random.choice([i for i in range(18, 30)])
+		data['name'] = name
+		return data
 
 
 	def makeHongKongID(self, BornYear):
