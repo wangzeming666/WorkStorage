@@ -1,0 +1,96 @@
+四代i5处理器的计算速度是树莓派B+的2303倍，DDR3内存速度是树莓派的41倍。
+测试结果精准度一般，但不会差太多。
+
+
+
+PC测试结果：
+
+    处理器型号：4代i5
+    administator@administator:~$ sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 run
+    sysbench 0.4.12:  multi-threaded system evaluation benchmark
+
+    Running the test with following options:
+    Number of threads: 4
+
+    Doing CPU performance benchmark
+
+    Threads started!
+    Done.
+
+    Maximum prime number checked in CPU test: 20000
+
+
+    Test execution summary:
+        total time:                          5.7888s
+        total number of events:              10000
+        total time taken by event execution: 23.1490
+        per-request statistics:
+             min:                                  2.25ms
+             avg:                                  2.31ms
+             max:                                 10.02ms
+             approx.  95 percentile:               2.35ms
+
+    Threads fairness:
+        events (avg/stddev):           2500.0000/14.92
+        execution time (avg/stddev):   5.7872/0.00
+        
+    结果：5.7888s
+
+
+
+    DDR3内存测试(PC)
+    administator@administator:~$ sudo time memtester 256M 1
+    memtester version 4.3.0 (64-bit)
+    Copyright (C) 2001-2012 Charles Cazabon.
+    Licensed under the GNU General Public License version 2 (only).
+
+    pagesize is 4096
+    pagesizemask is 0xfffffffffffff000
+    want 256MB (268435456 bytes)
+    got  256MB (268435456 bytes), trying mlock ...locked.
+    Loop 1/1:
+      Stuck Address       : ok         
+      Random Value        : ok
+      Compare XOR         : ok
+      Compare SUB         : ok
+      Compare MUL         : ok
+      Compare DIV         : ok
+      Compare OR          : ok
+      Compare AND         : ok
+      Sequential Increment: ok
+      Solid Bits          : ok         
+      Block Sequential    : ok         
+      Checkerboard        : ok         
+      Bit Spread          : ok         
+      Bit Flip            : ok         
+      Walking Ones        : ok         
+      Walking Zeroes      : ok         
+      8-bit Writes        : ok
+      16-bit Writes       : ok
+
+    Done.
+    101.88user 0.17system 1:42.07elapsed 99%CPU (0avgtext+0avgdata 263716maxresident)k
+    0inputs+0outputs (0major+65605minor)pagefaults 0swaps
+    
+    结果：101.88s
+    
+    
+    
+树莓派测试参考值：
+    sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 run 测试结果：
+
+    树莓派2
+    195.9543秒，即3分16秒
+
+    树莓派B+
+    1331.6552秒，即22分12秒
+
+
+    sudo time memtester 256M 1 测试结果：
+    树莓派2
+    1560.99秒，即26分1秒
+
+    树莓派B+
+    4208.09秒，即一小时10分8秒
+    
+    
