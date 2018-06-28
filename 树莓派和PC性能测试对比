@@ -1,5 +1,6 @@
-四代i5处理器的计算速度是树莓派B+的2303倍，DDR3内存速度是树莓派的41倍。
+四代i5处理器的计算速度是树莓派B+的2303倍，DDR3内存速度是树莓派的43倍。
 测试结果精准度一般，但不会差太多。
+目前的i7处理器,和DDR4会更快。
 
 
 
@@ -69,10 +70,10 @@ PC测试结果：
       16-bit Writes       : ok
 
     Done.
-    101.88user 0.17system 1:42.07elapsed 99%CPU (0avgtext+0avgdata 263716maxresident)k
-    0inputs+0outputs (0major+65605minor)pagefaults 0swaps
+    97.87user 0.15system 1:38.04elapsed 99%CPU (0avgtext+0avgdata 263640maxresident)k
+    0inputs+0outputs (0major+65603minor)pagefaults 0swaps
     
-    结果：101.88s
+    结果：97.87s
     
     
     
