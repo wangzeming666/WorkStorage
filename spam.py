@@ -20,26 +20,37 @@ db = conn.proemail
 proton = db.newaccount
 
 try:
-    os.popen('adb -s {} shell am start -n biz.bokhorst.xprivacy/biz.bokhorst.xprivacy.ActivityMain'.format(deviceID))
-    time.sleep(1)
+    os.system('adb -s {} shell am force-stop biz.bokhorst.xprivacy'.format(deviceID))
+    time.sleep(3)
     status, string = subprocess.getstatusoutput("adb -s {} uninstall ch.protonmail.android".format(deviceID))
     time.sleep(2)
+    os.system('adb -s {} shell am start -n biz.bokhorst.xprivacy/biz.bokhorst.xprivacy.ActivityMain'.format(deviceID))
+    time.sleep(3)
+    status, string = subprocess.getstatusoutput('adb -s {} shell settings put global airplane_mode_on 1'.format(deviceID))
+    time.sleep(1)
+    status, string = subprocess.getstatusoutput('adb -s {} shell am broadcast -a android.intent.action.AIRPLANE_MODE'.format(deviceID))
+    time.sleep(5)
+    status, string = subprocess.getstatusoutput('adb -s {} shell settings put global airplane_mode_on 0'.format(deviceID))
+    time.sleep(1)
+    status, string = subprocess.getstatusoutput('adb -s {} shell am broadcast -a android.intent.action.AIRPLANE_MODE'.format(deviceID))
+    time.sleep(5)
     status, string = subprocess.getstatusoutput("adb -s {} install /home/administator/protonmail.apk".format(deviceID))
     time.sleep(8)
-    os.popen('adb -s {} shell settings put global airplane_mode_on 1'.format(deviceID))
-    time.sleep(1)
-    os.popen('adb -s {} shell am broadcast -a android.intent.action.AIRPLANE_MODE'.format(deviceID))
-    time.sleep(10)
-    os.popen('adb -s {} shell settings put global airplane_mode_on 0'.format(deviceID))
-    time.sleep(1)
-    os.popen('adb -s {} shell am broadcast -a android.intent.action.AIRPLANE_MODE'.format(deviceID))
-    time.sleep(5)
     # d(description='More options').click()
-    os.system('adb -s {} shell am start -n ch.protonmail.android/ch.protonmail.android.activities.SplashActivity'.format(deviceID))
-    time.sleep(6)
-    print(1)
-    d(text="Create Account").click()
+    os.popen('adb -s {} shell am start -n ch.protonmail.android/ch.protonmail.android.activities.SplashActivity'.format(deviceID))
     time.sleep(10)
+    print(1)
+    # d(resourceId='ch.protonmail.android:id/create_account').click()
+    try:
+        d.click(168+random.randint(300, 500), 935+random.randint(20, 80))
+    except JsonRPCError:
+        time.sleep(5)
+        d.click(168+random.randint(300, 500), 935+random.randint(20, 80))
+
+    time.sleep(10)
+    if d(text='Retry').exists:
+        d(text='Retry').click()
+    time.sleep(8)
     d(resourceId="ch.protonmail.android:id/expand_free").click()
     time.sleep(2)
     d(text="Select").click()
@@ -58,7 +69,7 @@ try:
         password += random.choice(words)
     emailaccount = emailpart+"@protonmail.com"
     d.click(100,800)
-    os.popen('adb -s {} shell input text "{}"'.format(deviceID, emailpart))
+    os.system('adb -s {} shell input text "{}"'.format(deviceID, emailpart))
     time.sleep(2)
     d.press.back()
     # time.sleep(5)
@@ -142,12 +153,21 @@ try:
             time.sleep(5)
             d(text="Display Name").click()
     proton.insert({"userName":emailaccount, "passwords":password, "used":0})
-    time.sleep(random.random()*1000)
+    time.sleep(random.random()*300)
+    lis = [0,0,0,0,0,1]
+    status = random.choice(lis)
+    if status == 1:
+        time.sleep(3600)
+    lis = [0,0,0,1]
+    status = random.choice(lis)
+    if status == 1:
+        time.sleep(600)
     python3 = sys.executable
     os.execl(python3, python3, * sys.argv)
 
 except (JsonRPCError,Exception,BaseException, requests.exceptions.RequestException, IndexError) as e:
     print(e)
+    print('Some Error here.')
     # with open('error_log', 'r') as f:
     #     old = f.read()
 
@@ -155,7 +175,7 @@ except (JsonRPCError,Exception,BaseException, requests.exceptions.RequestExcepti
     #     f.write(old)
     #     f.write(str(e)+'\n')
  
-    time.sleep(300)
+    # time.sleep(random.random()*300)
     python3 = sys.executable
     os.execl(python3, python3, * sys.argv)
 
