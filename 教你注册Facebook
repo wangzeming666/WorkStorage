@@ -1,0 +1,33 @@
+根据我写的步骤执行，你也能大量的注册Facebook。
+
+首先，要准备一台可以root的手机。可以百度查看你的手机是否支持root。
+不同型号的手机root的方式不尽相同，有的需要先解锁。具体方案可以百度搜索。
+
+下面给出通用的root方案：
+    下载并安装root精灵（或其他任何可以root手机的工具），手机端和PC端都可以安装。
+    然后按照软件提示root手机。
+    http://www.shuame.com/root/
+    
+root手机以后，开始安装xposed框架，xposed框架安装方法可以百度搜索，有很多教程。
+  http://repo.xposed.info/
+
+安装好xposed框架后，安装手机信息修改工具。这类的工具有很多，我现在使用的是XPrivacy。
+这个工具不是很理想，但是勉强能用，有一些付费的软件功能更全一些。
+  http://repo.xposed.info/module/biz.bokhorst.xprivacy
+
+如果你选择使用XPrivacy，那么在安装好以后，在xposed框架中激活，然后重启手机。
+   包括上面安装xposed，你可以在这里获取一些帮助  https://xposed.appkg.com/nav
+
+打开XPrivacy，选中Facebook，在所有的限制权限访问下打勾（除了网络连接外）
+
+XPrivacy的使用方法可以访问其主页，或https://github.com/M66B/XPrivacy/
+
+在对应用做好限制以后，打开应用进行注册（Facebook）
+
+注册过程就和正常人的注册流程一样。这里我使用的是自动化工具uiautomator。
+你也可以使用其他的自动化工具。
+python脚本代码不到一百行就能搞定。
+
+注册完成后，清除app的使用信息。我是直接卸载了软件，重新安装。
+
+至此一个帐号注册完毕，重新打开APP注册即可。
