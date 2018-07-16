@@ -18,3 +18,178 @@ cv2.VideoCapture.get(15) 	曝光(仅适用于照相机)
 cv2.VideoCapture.get(16) 	指示是否应将图像转换为RGB布尔标志
 cv2.VideoCapture.get(17) 	× 暂时不支持
 cv2.VideoCapture.get(18) 	立体摄像机的矫正标注（目前只有DC1394 v.2.x后端支持这个功能）
+
+
+
+
+英文文档中的参数介绍：
+
+CAP_PROP_POS_MSEC 
+Python: cv.CAP_PROP_POS_MSEC
+	
+
+Current position of the video file in milliseconds.
+CAP_PROP_POS_FRAMES 
+Python: cv.CAP_PROP_POS_FRAMES
+	
+
+0-based index of the frame to be decoded/captured next.
+CAP_PROP_POS_AVI_RATIO 
+Python: cv.CAP_PROP_POS_AVI_RATIO
+	
+
+Relative position of the video file: 0=start of the film, 1=end of the film.
+CAP_PROP_FRAME_WIDTH 
+Python: cv.CAP_PROP_FRAME_WIDTH
+	
+
+Width of the frames in the video stream.
+CAP_PROP_FRAME_HEIGHT 
+Python: cv.CAP_PROP_FRAME_HEIGHT
+	
+
+Height of the frames in the video stream.
+CAP_PROP_FPS 
+Python: cv.CAP_PROP_FPS
+	
+
+Frame rate.
+CAP_PROP_FOURCC 
+Python: cv.CAP_PROP_FOURCC
+	
+
+4-character code of codec. see VideoWriter::fourcc .
+CAP_PROP_FRAME_COUNT 
+Python: cv.CAP_PROP_FRAME_COUNT
+	
+
+Number of frames in the video file.
+CAP_PROP_FORMAT 
+Python: cv.CAP_PROP_FORMAT
+	
+
+Format of the Mat objects returned by VideoCapture::retrieve().
+CAP_PROP_MODE 
+Python: cv.CAP_PROP_MODE
+	
+
+Backend-specific value indicating the current capture mode.
+CAP_PROP_BRIGHTNESS 
+Python: cv.CAP_PROP_BRIGHTNESS
+	
+
+Brightness of the image (only for those cameras that support).
+CAP_PROP_CONTRAST 
+Python: cv.CAP_PROP_CONTRAST
+	
+
+Contrast of the image (only for cameras).
+CAP_PROP_SATURATION 
+Python: cv.CAP_PROP_SATURATION
+	
+
+Saturation of the image (only for cameras).
+CAP_PROP_HUE 
+Python: cv.CAP_PROP_HUE
+	
+
+Hue of the image (only for cameras).
+CAP_PROP_GAIN 
+Python: cv.CAP_PROP_GAIN
+	
+
+Gain of the image (only for those cameras that support).
+CAP_PROP_EXPOSURE 
+Python: cv.CAP_PROP_EXPOSURE
+	
+
+Exposure (only for those cameras that support).
+CAP_PROP_CONVERT_RGB 
+Python: cv.CAP_PROP_CONVERT_RGB
+	
+
+Boolean flags indicating whether images should be converted to RGB.
+CAP_PROP_WHITE_BALANCE_BLUE_U 
+Python: cv.CAP_PROP_WHITE_BALANCE_BLUE_U
+	
+
+Currently unsupported.
+CAP_PROP_RECTIFICATION 
+Python: cv.CAP_PROP_RECTIFICATION
+	
+
+Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently).
+CAP_PROP_MONOCHROME 
+Python: cv.CAP_PROP_MONOCHROME
+	
+CAP_PROP_SHARPNESS 
+Python: cv.CAP_PROP_SHARPNESS
+	
+CAP_PROP_AUTO_EXPOSURE 
+Python: cv.CAP_PROP_AUTO_EXPOSURE
+	
+
+DC1394: exposure control done by camera, user can adjust reference level using this feature.
+CAP_PROP_GAMMA 
+Python: cv.CAP_PROP_GAMMA
+	
+CAP_PROP_TEMPERATURE 
+Python: cv.CAP_PROP_TEMPERATURE
+	
+CAP_PROP_TRIGGER 
+Python: cv.CAP_PROP_TRIGGER
+	
+CAP_PROP_TRIGGER_DELAY 
+Python: cv.CAP_PROP_TRIGGER_DELAY
+	
+CAP_PROP_WHITE_BALANCE_RED_V 
+Python: cv.CAP_PROP_WHITE_BALANCE_RED_V
+	
+CAP_PROP_ZOOM 
+Python: cv.CAP_PROP_ZOOM
+	
+CAP_PROP_FOCUS 
+Python: cv.CAP_PROP_FOCUS
+	
+CAP_PROP_GUID 
+Python: cv.CAP_PROP_GUID
+	
+CAP_PROP_ISO_SPEED 
+Python: cv.CAP_PROP_ISO_SPEED
+	
+CAP_PROP_BACKLIGHT 
+Python: cv.CAP_PROP_BACKLIGHT
+	
+CAP_PROP_PAN 
+Python: cv.CAP_PROP_PAN
+	
+CAP_PROP_TILT 
+Python: cv.CAP_PROP_TILT
+	
+CAP_PROP_ROLL 
+Python: cv.CAP_PROP_ROLL
+	
+CAP_PROP_IRIS 
+Python: cv.CAP_PROP_IRIS
+	
+CAP_PROP_SETTINGS 
+Python: cv.CAP_PROP_SETTINGS
+	
+
+Pop up video/camera filter dialog (note: only supported by DSHOW backend currently. The property value is ignored)
+CAP_PROP_BUFFERSIZE 
+Python: cv.CAP_PROP_BUFFERSIZE
+	
+CAP_PROP_AUTOFOCUS 
+Python: cv.CAP_PROP_AUTOFOCUS
+	
+CAP_PROP_SAR_NUM 
+Python: cv.CAP_PROP_SAR_NUM
+	
+
+Sample aspect ratio: num/den (num)
+CAP_PROP_SAR_DEN 
+Python: cv.CAP_PROP_SAR_DEN
+	
+
+Sample aspect ratio: num/den (den) 
