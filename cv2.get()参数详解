@@ -23,6 +23,7 @@ cv2.VideoCapture.get(18) 	立体摄像机的矫正标注（目前只有DC1394 v.
 
 
 英文文档中的参数介绍：
+（其中字符的值和数字相同）
 
 CAP_PROP_POS_MSEC 
 Python: cv.CAP_PROP_POS_MSEC
