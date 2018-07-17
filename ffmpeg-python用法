@@ -1,0 +1,30 @@
+import ffmpeg
+
+#读入url或文件名
+input1 = ffmpeg.input('a.mp4')
+input2 = ffmpeg.input('b.mp4')
+#生成命令行参数
+output1 = ffmpeg.output('1.ts')
+output2 = ffmpeg.output('2.ts')
+#命令行执行
+ffmpeg.run(output1)
+ffmpeg.run(output2)
+#转码ts文件成功
+
+#合并两个ts文件并转码成mp4
+input1 = ffmpeg.input('1.ts')
+input2 = ffmpeg.intpu('2.ts')
+concat = ffmpeg.concat(input1, input2)
+ffmpeg.output(concat, 'output.mp4').run()
+#执行时间很长，在命令行加参数会很快，但是不知道加在哪
+#我查了文档，还有源码，介绍的很模糊，尝试也都报错
+#命令行执行命令如下
+ffmpeg -i "concat:1.ts|2.ts" -acodec copy -vcodec copy -absf aac_adtstoasc output.mp4
+#我做的尝试如下
+concat = ffmpeg.concat(input1,input2, vcodec='copy', acodec='copy', vbsf='h264_mp4toannexb')
+ffmpeg.output(concat, 'output.mp4').run()
+#and
+concat = ffmpeg.concat(input1,input2)
+ffmpeg.output(concat, 'output.mp4', vcodec='copy', acodec='copy', vbsf='h264_mp4toannexb').run()
+#然而结果都是报错
+#
