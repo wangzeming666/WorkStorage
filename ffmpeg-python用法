@@ -21,10 +21,10 @@ ffmpeg.output(concat, 'output.mp4').run()
 #命令行执行命令如下
 ffmpeg -i "concat:1.ts|2.ts" -acodec copy -vcodec copy -absf aac_adtstoasc output.mp4
 #我做的尝试如下
-concat = ffmpeg.concat(input1,input2, vcodec='copy', acodec='copy', vbsf='h264_mp4toannexb')
+concat = ffmpeg.concat(input1,input2, vcodec='copy', acodec='copy', vbsf='aac_adtstoasc')
 ffmpeg.output(concat, 'output.mp4').run()
 #and
 concat = ffmpeg.concat(input1,input2)
-ffmpeg.output(concat, 'output.mp4', vcodec='copy', acodec='copy', vbsf='h264_mp4toannexb').run()
+ffmpeg.output(concat, 'output.mp4', vcodec='copy', acodec='copy', vbsf='aac_adtstoasc').run()
 #然而结果都是报错
 #
