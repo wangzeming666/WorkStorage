@@ -1,0 +1,112 @@
+基于yahoo开源的训练模型，可以准确地识别色情图片。
+
+主要依赖包：
+    numpy
+    opencv
+    caffe
+
+其中比较难安装的是caffe
+1安装caffe
+1安装依赖
+这个命令是更新一下apt-get
+sudo apt-get update
+
+sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
+sudo apt-get install –no-install-recommends libboost-all-dev
+sudo apt-get install libatlas-base-dev
+sudo apt-get install libhdf5-serial-dev
+
+2安装python与pip
+sudo apt-get install python-dev
+sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+
+安装pip
+export PATH=”$PATH:/usr/local/bin/python
+sudo apt install python-pip
+
+3配置caffe
+git clone https://github.com/BVLC/caffe.git
+如果没有git,还需要安装git：
+apt-get install git
+
+进入caffe目录的python目录，看自己caffe下载在哪里的
+然后在运行,通过pip安装依赖包
+cd /home/wangqi/caffe/python
+for req in (catrequirements.txt);dopipinstall
+
+req; done
+
+在进入caffe的主目录,修改编译的配置文件
+cp Makefile.config.example Makefile.config
+因为是虚拟机，这里cpu 模式，所以需要吧CPU_ONLY:=1前面的注释去掉
+并修改配置路径
+CPU_ONLY := 1
+INCLUDE_DIRS := (PYTHONINCLUDE)/usr/local/include/usr/include/hdf5/serial
+LIBRARYDIRS:=(PYTHON_LIB) /usr/local/lib /usr/lib
+
+配置好之后以此输入如下命令，但是在make pycaffe的时候会报错，解决方法移步解决错误解决2
+make pycaffe
+make all
+make test
+make runtest
+
+make默认是单核编译，如果想加快速度，也有资源的话请加上-j4
+make -j4
+
+安装错误 make clean
+
+4之后配置python caffe,这里是caffe的安装目录下python目录哈
+export PYTHONPATH=/home/wangqi/caffe/python:$PYTHONPATH
+
+这一部相当于是把caffe放入pathon的path，这样在python中才能使用import caffe。
+
+5验证
+输入python命令，然后在命令行输入inport caffe，如果能引用没有报错，说明caffe已经安装好。 
+
+6安装open nsfw
+git方式下载open nsfw
+git clone https://github.com/yahoo/open_nsfw
+
+cd open_nsfw 
+python ./classify_nsfw.py \
+–model_def nsfw_model/deploy.prototxt \
+–pretrained_model nsfw_model/resnet_50_1by2_nsfw.caffemodel \
+./pic/h9.jpg 
+
+
+错误整理
+错误解决2
+配置caffe的python环境时make pycaffe提示fatal error: numpy/arrayobject.h No such file or directory解决方法
+重装numpy：
+sudo pip uninstall numpy
+sudo pip install numpy
+是没有用的。。。
+解决的办法就是：
+sudo apt-get install python-numpy
+
+下面是可能发生的错误的解决办法可以直接先执行所有解决办法后再安装caffe。
+
+1. ./include/caffe/common.hpp:5:27: fatal error: gflags/gflags.h: No such file or directory
+
+解决办法：sudo apt-get install libgflags-dev
+
+2. ./include/caffe/util/mkl_alternate.hpp:14:19: fatal error: cblas.h: No such file or directory
+
+解决办法：sudo apt-get install libblas-dev
+
+3. ./include/caffe/util/hdf5.hpp:6:18: fatal error: hdf5.h: No such file or directory
+
+解决办法：在Makefile.config找到以下行并添加蓝色部分
+
+INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial 
+
+LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu/hdf5/serial
+
+4. ./include/caffe/util/db_lmdb.hpp:8:18: fatal error: lmdb.h: No such file or directory
+
+解决办法：sudo apt install liblmdb-dev
+
+5. /usr/bin/ld: cannot find -lcblas
+    /usr/bin/ld: cannot find -latlas
+
+解决办法：sudo apt install libatlas-base-dev
