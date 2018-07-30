@@ -1,0 +1,16 @@
+这个方案的效果还是不错的，不仔细看看不出来。
+如果想要更好的处理效果，需牺牲运算时间。
+也可以补一张水印上去。
+
+依赖Opencv3 和 Python3
+
+pip3 install nowatermark
+
+代码如下：
+>>> from nowatermark import WatermarkRemover
+>>> watermark_template_filename = '/home/administator/shuiyin.jpeg'
+>>> remover = WatermarkRemover()
+>>> remover.load_watermark_template(watermark_template_filename)
+>>> remover.remove_watermark('/home/administator/src1.jpeg', 'result.jpeg')
+
+将视频剪辑过后，也可以去除视频水印。
