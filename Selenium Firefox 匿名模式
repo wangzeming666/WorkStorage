@@ -1,0 +1,7 @@
+>>> from selenium import webdriver
+>>> options = webdriver.FirefoxOptions()
+>>> driver = webdriver.Firefox(firefox_options = options)
+>>> options.add_argument('--private-window')
+>>> driver = webdriver.Firefox(firefox_options = options)
+
+此时应成功启动匿名模式的 Firefox
